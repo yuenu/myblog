@@ -204,6 +204,19 @@ a {
   margin-top: 5px;
   margin-bottom: 5px;
 }
+.highlight {
+  margin: 0;
+}
+pre {
+  margin: 0;
+}
+pre code {
+  white-space: pre;
+  word-wrap: normal;
+}
+table {
+  margin: 0;
+}
 pre code.hljs {
   display: block;
   overflow-x: auto;
