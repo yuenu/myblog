@@ -6,7 +6,7 @@
     <link rel="shortcut icon" href="/blog/images/avatar.png" type="image/x-icon" />
     <title>
         
-            React、Vue舊專案優化解法 |
+            React、Vue2舊專案DX(Development Experience)優化解法 |
          
         Josh Hsu
     </title>
@@ -61,16 +61,184 @@
         <div class="post-details">
             
             <div class="post-title">
-                <h1>React、Vue舊專案優化解法</h1>
+                <h1>React、Vue2舊專案DX(Development Experience)優化解法</h1>
             </div>
             <div class="post-meta">
                 <i class="fa-solid fa-clock"></i>&nbsp;<span class="post-date">2023/01/06</span>
             </div>
             
             <div class="post-content">
-                <img src="/blog/2023/01/06/legacy-project-optimization/g1.jpg" class="" title="This is an example image">
+                <img src="/blog/2023/01/06/legacy-project-optimization/g1.png" class="" title="This is an example image">
+<p>最近公司內部的專案在bundle時，花費的時間越來越久<br>主要是用vue2搭配element-ui 然後還有許多大大小小的套件，<br>這個專案主要是做報表系統，有50+以上的頁面，<br>所以相對應的component也不少<br>再配合上webpack + babel的編譯，<br>所以不光是起server連同編輯檔案後儲存重新編譯的時間也花上不少</p>
+<pre><code class="hljs bash"><span class="hljs-string">&quot;vue&quot;</span>: <span class="hljs-string">&quot;2.6.10&quot;</span>,
+<span class="hljs-string">&quot;@vue/cli-service&quot;</span>: <span class="hljs-string">&quot;3.5.3&quot;</span>,
+<span class="hljs-string">&quot;element-ui&quot;</span>: <span class="hljs-string">&quot;2.13.0&quot;</span>,
+<span class="hljs-string">&quot;moment&quot;</span>: <span class="hljs-string">&quot;2.29.1&quot;</span>,</code></pre>
 
-<p>最近公司內部的專案在起serve時，花費的時間越來越久</p>
+<p>此專案主要用的library &amp;&amp; framework</p>
+<p>最近專案需求剛好告一段落，<br>所以開始著手研究相對應的優化</p>
+<blockquote>
+<p>這邊專注的是DX(Development Experience)優化，並不是頁面的優化</p>
+</blockquote>
+<h3 id="為此我們要先寫一個webpack-plugin來看啟動時間要耗時多久"><a href="#為此我們要先寫一個webpack-plugin來看啟動時間要耗時多久" class="headerlink" title="為此我們要先寫一個webpack plugin來看啟動時間要耗時多久"></a>為此我們要先寫一個webpack plugin來看啟動時間要耗時多久</h3><p>先創建一個ConsolelogPlugin.js，放在根目錄</p>
+<p>需要的library</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/chalk/chalk#readme">chalk</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/freeall/single-line-log">single-line-log</a></li>
+</ul>
+<pre><code class="hljs js"><span class="hljs-comment">// ConsolelogPlugin.js</span>
+<span class="hljs-keyword">const</span> chalk = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;chalk&#x27;</span>) <span class="hljs-comment">/* console 顏色 */</span>
+<span class="hljs-keyword">const</span> slog = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;single-line-log&#x27;</span>); <span class="hljs-comment">/* 單行 Print console */</span>
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">ConsolegPlugin</span> &#123;
+    <span class="hljs-title function_">constructor</span>(<span class="hljs-params">options</span>)&#123;
+       <span class="hljs-variable language_">this</span>.<span class="hljs-property">options</span> = options
+    &#125;
+    <span class="hljs-title function_">apply</span>(<span class="hljs-params">compiler</span>)&#123;
+        <span class="hljs-comment">/**</span>
+<span class="hljs-comment">         * Monitor file change 記錄當前改動文件</span>
+<span class="hljs-comment">         */</span>
+        compiler.<span class="hljs-property">hooks</span>.<span class="hljs-property">watchRun</span>.<span class="hljs-title function_">tap</span>(<span class="hljs-string">&#x27;ConsolePlugin&#x27;</span>, <span class="hljs-function">(<span class="hljs-params">watching</span>) =&gt;</span> &#123;
+            <span class="hljs-keyword">const</span> changeFiles = watching.<span class="hljs-property">watchFileSystem</span>.<span class="hljs-property">watcher</span>.<span class="hljs-property">mtimes</span>
+            <span class="hljs-keyword">for</span>(<span class="hljs-keyword">let</span> file <span class="hljs-keyword">in</span> changeFiles)&#123;
+                <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(chalk.<span class="hljs-title function_">green</span>(<span class="hljs-string">&#x27;當前改動文件：&#x27;</span>+ file))
+            &#125;
+        &#125;)
+        <span class="hljs-comment">/**</span>
+<span class="hljs-comment">         *  before a new compilation is created. </span>
+<span class="hljs-comment">         *  開始 compilation 編譯 。</span>
+<span class="hljs-comment">         */</span>
+        compiler.<span class="hljs-property">hooks</span>.<span class="hljs-property">compile</span>.<span class="hljs-title function_">tap</span>(<span class="hljs-string">&#x27;ConsolePlugin&#x27;</span>,<span class="hljs-function">()=&gt;</span>&#123;
+            <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">beginCompile</span>()
+        &#125;)
+        <span class="hljs-comment">/**</span>
+<span class="hljs-comment">         * Executed when the compilation has completed. </span>
+<span class="hljs-comment">         * 一次 compilation 完成。</span>
+<span class="hljs-comment">         */</span>
+        compiler.<span class="hljs-property">hooks</span>.<span class="hljs-property">done</span>.<span class="hljs-title function_">tap</span>(<span class="hljs-string">&#x27;ConsolePlugin&#x27;</span>,<span class="hljs-function">()=&gt;</span>&#123;
+            <span class="hljs-variable language_">this</span>.<span class="hljs-property">timer</span> &amp;&amp; <span class="hljs-built_in">clearInterval</span>( <span class="hljs-variable language_">this</span>.<span class="hljs-property">timer</span> )
+            <span class="hljs-keyword">const</span> endTime =  <span class="hljs-keyword">new</span> <span class="hljs-title class_">Date</span>().<span class="hljs-title function_">getTime</span>()
+            <span class="hljs-keyword">const</span> time = (endTime - <span class="hljs-variable language_">this</span>.<span class="hljs-property">starTime</span>) / <span class="hljs-number">1000</span>
+            <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>( chalk.<span class="hljs-title function_">yellow</span>(<span class="hljs-string">&#x27; 編譯完成&#x27;</span>) )
+            <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>( chalk.<span class="hljs-title function_">yellow</span>(<span class="hljs-string">&#x27;編譯用時：&#x27;</span> + time + <span class="hljs-string">&#x27;秒&#x27;</span> ) )
+        &#125;)
+    &#125;
+    <span class="hljs-title function_">beginCompile</span>(<span class="hljs-params"></span>)&#123;
+       <span class="hljs-keyword">const</span> lineSlog = slog.<span class="hljs-property">stdout</span>
+       <span class="hljs-keyword">let</span> text  = <span class="hljs-string">&#x27;開始編譯：&#x27;</span>
+       <span class="hljs-comment">/* 記錄開始時間 */</span>
+       <span class="hljs-variable language_">this</span>.<span class="hljs-property">starTime</span> =  <span class="hljs-keyword">new</span> <span class="hljs-title class_">Date</span>().<span class="hljs-title function_">getTime</span>()
+       <span class="hljs-variable language_">this</span>.<span class="hljs-property">timer</span> = <span class="hljs-built_in">setInterval</span>(<span class="hljs-function">()=&gt;</span>&#123;
+          text +=  <span class="hljs-string">&#x27;█&#x27;</span>
+          <span class="hljs-title function_">lineSlog</span>( chalk.<span class="hljs-title function_">green</span>(text))
+       &#125;,<span class="hljs-number">50</span>)
+    &#125;
+&#125;
+
+<span class="hljs-variable language_">module</span>.<span class="hljs-property">exports</span> = <span class="hljs-title class_">ConsolegPlugin</span></code></pre>
+
+<p>如此一來我們才能量化所需的時間(<del>代表我們的績效😎</del>)</p>
+<p>接下來我們使用<a target="_blank" rel="noopener" href="https://github.com/amireh/happypack#readme">HappyPack</a>搭配<a target="_blank" rel="noopener" href="https://webpack.docschina.org/loaders/babel-loader">babel-loader</a>的cache來加速</p>
+<img src="/blog/2023/01/06/legacy-project-optimization/g3.png" class="" title="This is an example image">
+<p><a target="_blank" rel="noopener" href="https://webpack.docschina.org/loaders/babel-loader#babel-loader-is-slow">我們可以加上cacheDirectory的選項來cache之前編譯過的檔案</a></p>
+<p>不囉唆，上code</p>
+<h3 id="Vue2版本-webpack"><a href="#Vue2版本-webpack" class="headerlink" title="Vue2版本(webpack)"></a>Vue2版本(webpack)</h3><pre><code class="hljs js"><span class="hljs-comment">// vue.config.js</span>
+
+<span class="hljs-comment">// import .. from ..</span>
+<span class="hljs-comment">// import ... from ...</span>
+<span class="hljs-keyword">const</span> <span class="hljs-title class_">ConsolelogPlugin</span> = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;./ConsolelogPlugin&#x27;</span>)
+<span class="hljs-keyword">const</span> <span class="hljs-title class_">HappyPack</span> = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;happypack&#x27;</span>);
+<span class="hljs-keyword">const</span> os = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;os&#x27;</span>)
+<span class="hljs-keyword">const</span> happyThreadPool = <span class="hljs-title class_">HappyPack</span>.<span class="hljs-title class_">ThreadPool</span>(&#123; <span class="hljs-attr">size</span>: os.<span class="hljs-title function_">cpus</span>().<span class="hljs-property">length</span> &#125;)
+
+<span class="hljs-variable language_">module</span>.<span class="hljs-property">exports</span> = &#123;
+
+  <span class="hljs-comment">// ....</span>
+  <span class="hljs-comment">// ......</span>
+  <span class="hljs-attr">configureWebpack</span>: &#123;
+
+    <span class="hljs-comment">// ....</span>
+    <span class="hljs-attr">plugins</span>: [
+      <span class="hljs-keyword">new</span> <span class="hljs-title class_">ConsolelogPlugin</span>()
+    ]
+
+    <span class="hljs-title function_">chainWebpack</span>(<span class="hljs-params">config</span>) &#123; 
+        <span class="hljs-comment">// ...</span>
+        <span class="hljs-comment">// 只想在 development 的環境執行</span>
+        config.<span class="hljs-title function_">when</span>(process.<span class="hljs-property">env</span>.<span class="hljs-property">NODE_ENV</span> === <span class="hljs-string">&#x27;development&#x27;</span>, <span class="hljs-function"><span class="hljs-params">config</span> =&gt;</span> &#123;
+            config.<span class="hljs-title function_">plugin</span>(<span class="hljs-string">&#x27;happypack&#x27;</span>)
+                .<span class="hljs-title function_">use</span>(<span class="hljs-title class_">HappyPack</span>)
+                .<span class="hljs-title function_">tap</span>(<span class="hljs-function"><span class="hljs-params">options</span> =&gt;</span> &#123;
+                options[<span class="hljs-number">0</span>] = &#123;
+                    <span class="hljs-attr">id</span>: <span class="hljs-string">&#x27;babel&#x27;</span>,
+                    <span class="hljs-attr">loaders</span>: [<span class="hljs-string">&#x27;babel-loader?cacheDirectory=true&#x27;</span>], <span class="hljs-comment">// 开启缓存</span>
+                    <span class="hljs-attr">threadPool</span>: happyThreadPool
+                &#125;
+                <span class="hljs-keyword">return</span> options
+                &#125;)
+            <span class="hljs-keyword">const</span> hRule = config.<span class="hljs-property">module</span>.<span class="hljs-title function_">rule</span>(<span class="hljs-string">&#x27;js&#x27;</span>)
+            hRule.<span class="hljs-title function_">test</span>(<span class="hljs-regexp">/\.js$/</span>)
+                .<span class="hljs-property">include</span>.<span class="hljs-title function_">add</span>(<span class="hljs-title function_">resolve</span>(<span class="hljs-string">&#x27;src&#x27;</span>))
+                .<span class="hljs-title function_">end</span>()
+            hRule.<span class="hljs-property">uses</span>.<span class="hljs-title function_">clear</span>()
+            hRule.<span class="hljs-title function_">use</span>(<span class="hljs-string">&#x27;happypack/loader?id=babel&#x27;</span>)
+                .<span class="hljs-title function_">loader</span>(<span class="hljs-string">&#x27;happypack/loader?id=babel&#x27;</span>)
+                .<span class="hljs-title function_">end</span>()
+        &#125;)
+    &#125;
+  &#125;
+&#125;</code></pre>
+
+<h3 id="React-webpack-4-44-1"><a href="#React-webpack-4-44-1" class="headerlink" title="React (webpack 4.44.1)"></a>React (webpack 4.44.1)</h3><pre><code class="hljs js"><span class="hljs-comment">// webpack.config.dev.js</span>
+
+<span class="hljs-comment">// ...</span>
+<span class="hljs-keyword">const</span> <span class="hljs-title class_">ConsolelogPlugin</span> = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;./ConsolelogPlugin&#x27;</span>)
+<span class="hljs-keyword">const</span> <span class="hljs-title class_">HappyPack</span> = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;happypack&#x27;</span>);
+<span class="hljs-keyword">const</span> os = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;os&#x27;</span>)
+<span class="hljs-keyword">const</span> happyThreadPool = <span class="hljs-title class_">HappyPack</span>.<span class="hljs-title class_">ThreadPool</span>(&#123; <span class="hljs-attr">size</span>: os.<span class="hljs-title function_">cpus</span>().<span class="hljs-property">length</span> &#125;)
+
+<span class="hljs-variable language_">module</span>.<span class="hljs-property">exports</span> = &#123;
+
+    <span class="hljs-attr">module</span>: &#123;
+        <span class="hljs-attr">rules</span>: [
+            <span class="hljs-comment">// 原本</span>
+            <span class="hljs-comment">// &#123;</span>
+            <span class="hljs-comment">//     test: /\.jsx?$/,</span>
+            <span class="hljs-comment">//     exclude: /node_modules/,</span>
+            <span class="hljs-comment">//     use: &#123;</span>
+            <span class="hljs-comment">//         loader: &quot;babel-loader&quot;,</span>
+            <span class="hljs-comment">//         options: &#123;</span>
+            <span class="hljs-comment">//             presets: [&quot;@babel/preset-react&quot;,&quot;@babel/preset-env&quot;],</span>
+            <span class="hljs-comment">//         &#125;,</span>
+            <span class="hljs-comment">//     &#125;</span>
+            <span class="hljs-comment">// &#125;,</span>
+            
+            <span class="hljs-comment">//改為</span>
+            &#123;
+                <span class="hljs-attr">test</span>: <span class="hljs-regexp">/\.js?$/</span>,
+                <span class="hljs-attr">exclude</span>: <span class="hljs-regexp">/node_modules/</span>,
+                <span class="hljs-attr">use</span>:[<span class="hljs-string">&#x27;happypack/loader?id=babel&#x27;</span>]
+            &#125;
+        ]
+    &#125;
+
+    <span class="hljs-comment">// ....</span>
+    <span class="hljs-attr">plugins</span>: [
+        <span class="hljs-comment">//.... ,</span>
+        <span class="hljs-comment">// .... ,</span>
+        <span class="hljs-keyword">new</span> <span class="hljs-title class_">HappyPack</span>(&#123;
+            <span class="hljs-attr">id</span>:<span class="hljs-string">&#x27;babel&#x27;</span>, <span class="hljs-comment">// 這邊對應</span>
+            <span class="hljs-attr">loaders</span>:[<span class="hljs-string">&#x27;babel-loader?cacheDirectory=true&#x27;</span>], <span class="hljs-comment">// cache babel編譯過的檔案</span>
+            <span class="hljs-attr">threadPool</span>: happyThreadPool
+        &#125;),
+        <span class="hljs-keyword">new</span> <span class="hljs-title class_">ConsolelogPlugin</span>()
+    ]
+&#125;</code></pre>
+
+<h3 id="結果"><a href="#結果" class="headerlink" title="結果"></a>結果</h3><img src="/blog/2023/01/06/legacy-project-optimization/g2.png" class="" title="This is an example image">
+
+<p>原本約55秒<br>改進後約16秒<br>只剩下原本不到1&#x2F;3的時間</p>
+<p>當然修改後儲存的編譯時間也有變快<br>但我這邊就不做記錄了</p>
 
             </div>
         </div>
