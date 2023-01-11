@@ -12,7 +12,7 @@
     <link rel="shortcut icon" href="/myblog/images/avatar.png" type="image/x-icon" />
     <title>
         
-            React、Vue2舊專案DX(Development Experience)優化解法 |
+            React、Vue2在舊專案中如何優化DX(Development Experience)?讓啟動server跟hot reload重新編譯的時間減少超過一半以上的時間 |
          
         Josh Hsu
     </title>
@@ -67,7 +67,7 @@
         <div class="post-details">
             
             <div class="post-title">
-                <h1>React、Vue2舊專案DX(Development Experience)優化解法</h1>
+                <h1>React、Vue2在舊專案中如何優化DX(Development Experience)?讓啟動server跟hot reload重新編譯的時間減少超過一半以上的時間</h1>
             </div>
             <div class="post-meta">
                 <i class="fa-solid fa-clock"></i>&nbsp;<span class="post-date">2023/01/06</span>
@@ -75,7 +75,8 @@
             
             <div class="post-content">
                 <img src="/myblog/2023/01/06/legacy-project-optimization/g1.png" class="" title="g1">
-<p>最近公司內部的專案在bundle時，花費的時間越來越久<br>主要是用vue2搭配element-ui 然後還有許多大大小小的套件，<br>這個專案主要是做報表系統，有50+以上的頁面，<br>所以相對應的component也不少<br>再配合上webpack + babel的編譯，<br>所以不光是起server連同編輯檔案後儲存重新編譯的時間也花上不少</p>
+<p>最近公司內部的專案在開發run server時，花費的時間越來越久</p>
+<p>主要是用vue2搭配element-ui 然後還有許多大大小小的套件，<br>這個專案主要是做報表系統，有50+以上的頁面，<br>所以相對應的component也不少<br>再配合上webpack + babel的編譯，<br>所以不光是起server連同編輯檔案後儲存重新編譯的時間也花上不少</p>
 <pre><code class="hljs bash"><span class="hljs-string">&quot;vue&quot;</span>: <span class="hljs-string">&quot;2.6.10&quot;</span>,
 <span class="hljs-string">&quot;@vue/cli-service&quot;</span>: <span class="hljs-string">&quot;3.5.3&quot;</span>,
 <span class="hljs-string">&quot;element-ui&quot;</span>: <span class="hljs-string">&quot;2.13.0&quot;</span>,
