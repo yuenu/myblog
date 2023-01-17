@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <meta name="description" content="前端工程師紀錄">
+    <meta name="keywords" content="前端工程師、前端工程師優化、前端工程師工作分享">
+    <meta name="author" content="Josh Hsu">
+    <meta name="google-site-verification" content="UeAnvJgJoOr-oVkpRDC2qzUFFW4R7LIJ1D-mQ28PGA0" />
+    
+    
+    <link rel="shortcut icon" href="/myblog/images/avatar.png" type="image/x-icon" />
+    <title>
+        
+            React如何實現Vue的keep-alive功能？ 初探 React Router v6 |
+         
+        Josh Hsu
+    </title>
+    
+<link rel="stylesheet" href="/myblog/css/style.css">
+
+    
+<link rel="stylesheet" href="/myblog/fontawesome/css/fontawesome.min.css">
+
+    
+<link rel="stylesheet" href="/myblog/fontawesome/css/brands.min.css">
+
+    
+<link rel="stylesheet" href="/myblog/fontawesome/css/solid.min.css">
+
+     
+    
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-V639HBSNNY"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-V639HBSNNY');
+        </script>
+    
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+    <div class="body-container">
+        <div class="header-wrapper"><header>
+    <div class="header-container">
+        <div class="header-menu-list">
+            <ul>
+            
+                <li>
+                    <a href="/myblog/">主頁</a>
+                </li>
+            
+                <li>
+                    <a href="/myblog/about">關於</a>
+                </li>
+            
+            </ul>
+        </div>
+    </div>
+</header>
+</div>
+        <div class="main-wrapper"><main>
+    <div class="main-container">
+        <div class="post-details">
+            
+            <div class="post-title">
+                <h1>React如何實現Vue的keep-alive功能？ 初探 React Router v6</h1>
+            </div>
+            <div class="post-meta">
+                <i class="fa-solid fa-clock"></i>&nbsp;<span class="post-date">2023/01/17</span>
+            </div>
+            
+            <div class="post-content">
+                <img src="/myblog/2023/01/17/explore-react-router-v6/react-router.jpeg" class="" title="react-router">
+
+<h3 id="專案上需要用到-cache-頁面"><a href="#專案上需要用到-cache-頁面" class="headerlink" title="專案上需要用到 cache 頁面"></a>專案上需要用到 cache 頁面</h3><p>最近剛好有個需求是在某些頁面的情況之下，</p>
+<p>使用者從 A 畫面 -&gt; 跳至 B 畫面 -&gt; 再回到 A 畫面時，</p>
+<p>scroll 的狀態要維持在原本的位置，</p>
+<p>有玩過 Vue 的人就知道這用<a target="_blank" rel="noopener" href="https://vuejs.org/">Vue.js</a>的 keep-alive 很容易就可以實現了，</p>
+<p>然後此專案是用 React class component 寫的，所以選擇不多，最後選擇用<a target="_blank" rel="noopener" href="https://github.com/CJY0208/react-router-cache-route">react-router-cache-route</a>來實現此功能</p>
+<p>它的原理就是在要 cache 的這個頁面外層加個 div 然後切換此頁面時在此 div 設置 display: none;</p>
+<p>切換到 cache 的頁面時再 display: block;就行了</p>
+<p>思路很簡單，不過如果要 cache 的頁面越來越多的情況下，html 的結構會越長越大，這實在不是個好辦法</p>
+<h3 id="Vue-js-的-keep-alive"><a href="#Vue-js-的-keep-alive" class="headerlink" title="Vue.js 的 keep-alive"></a>Vue.js 的 keep-alive</h3><p><a target="_blank" rel="noopener" href="https://github.com/vuejs/vue/blob/main/src/core/components/keep-alive.ts">源碼在此</a></p>
+<p>之後開始研究了 Vue.js 的 keep-alive 是如何實現的，</p>
+<p>而 keep-alive 是透過<a target="_blank" rel="noopener" href="https://josephjsf2.github.io/data/structure/and/algorithm/2020/05/09/LRU.html">LRU cache</a>策略儲存在 VNode</p>
+<p>但因此就讓我思考了難道 React 沒有如 keep-alive cache 頁面的方法</p>
+<p>目前查到 2 個方法</p>
+<ul>
+<li><p><a target="_blank" rel="noopener" href="https://zh-hant.reactjs.org/blog/2022/06/15/react-labs-what-we-have-been-working-on-june-2022.html#offscreen">React 18 OffScreen</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://juejin.cn/post/7041490849858846728">基于 react-router V6 实现 路由缓存</a></p>
+</li>
+</ul>
+<h3 id="初探-React-Router-v6"><a href="#初探-React-Router-v6" class="headerlink" title="初探 React Router v6"></a>初探 React Router v6</h3><p>目前在 React 中使用 router library 有</p>
+<ul>
+<li><p>由 Remix 團隊所開源的 <a target="_blank" rel="noopener" href="https://github.com/remix-run/react-router">react-router</a> (應該是目前最多人使用的)</p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://reach.tech/router/">reach-router</a> (不過後來跟 react-router 合併了，目前已沒有在維護)</p>
+</li>
+<li><p>由 React Query 團隊開源的 <a target="_blank" rel="noopener" href="https://tanstack.com/router/v1">TanStack Router</a> (不過現在還在 beta 中，文檔也還不齊全，不過看得出來他們的野心，想要讓現在主流框架都能使用到)</p>
+</li>
+</ul>
+<img src="/myblog/2023/01/17/explore-react-router-v6/tanStack-router.png" class="" title="TanStack Router">
+
+<h3 id="本文開始"><a href="#本文開始" class="headerlink" title="本文開始"></a>本文開始</h3><p>代補</p>
+<h3 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h3><p><a target="_blank" rel="noopener" href="https://remix.run/blog/remixing-react-router#tldr">Remixing React Router</a></p>
+<p><a target="_blank" rel="noopener" href="https://josephjsf2.github.io/data/structure/and/algorithm/2020/05/09/LRU.html">LRU Cache</a></p>
+<p><a target="_blank" rel="noopener" href="https://juejin.cn/post/6862206197877964807">keep-alive 是如何实现缓存的</a></p>
+
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="https://utteranc.es/client.js"
+    repo="yuenu/myblog"
+    issue-term="pathname"
+    theme="github-light"
+    crossorigin="anonymous"
+    async>
+</script>
+
+  
+
+</div>
+        <div class="footer-wrapper"><footer>
+    <div class="footer-container">
+        <div class="footer-meta">
+            
+                <div class="footer-meta-copyright">
+                    &copy; 2023 Josh Hsu.
+                </div>
+            
+            
+                <div class="footer-meta-licenese">
+                    Licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC-BY-NC-SA 4.0</a>
+                </div>
+            
+            
+        </div>
+    </div>
+</footer>
+</div>
+    </div>
+</body>
+</html>
