@@ -77,20 +77,18 @@
                 <img src="/myblog/2023/01/17/explore-react-router-v6/react-router.jpeg" class="" title="react-router">
 
 <h3 id="專案上需要用到-cache-頁面"><a href="#專案上需要用到-cache-頁面" class="headerlink" title="專案上需要用到 cache 頁面"></a>專案上需要用到 cache 頁面</h3><p>最近剛好有個需求是在某些頁面的情況之下，</p>
-<p>使用者從 A 畫面 -&gt; 跳至 B 畫面 -&gt; 再回到 A 畫面時，</p>
-<p>scroll 的狀態要維持在原本的位置，</p>
+<p>使用者從 A 畫面 -&gt; 跳至 B 畫面 -&gt; 再回到 A 畫面時，scroll 的狀態要維持在原本的位置，</p>
 <p>有玩過 Vue 的人就知道這用<a target="_blank" rel="noopener" href="https://vuejs.org/">Vue.js</a>的 keep-alive 很容易就可以實現了，</p>
-<p>然後此專案是用 React class component 寫的，所以選擇不多，最後選擇用<a target="_blank" rel="noopener" href="https://github.com/CJY0208/react-router-cache-route">react-router-cache-route</a>來實現此功能</p>
-<p>它的原理就是在要 cache 的這個頁面外層加個 div 然後切換此頁面時在此 div 設置 display: none;</p>
-<p>切換到 cache 的頁面時再 display: block;就行了</p>
+<p>然而此專案是用 React class component 寫的，所以選擇不多，有 CJY0208 開源的 <code>React Activation</code> 、 <code>react-router-cache-route</code></p>
+<p>最後選擇用<a target="_blank" rel="noopener" href="https://github.com/CJY0208/react-router-cache-route">react-router-cache-route</a>來實現此功能，因為有支援class component的相關生命週期可以使用以及所需cache的頁面不是很多</p>
+<p>它的原理就是在要 cache 的這個頁面外層加個 div 然後切換此頁面時在此 div 設置 display: none; 切換到 cache 的頁面時再 display: block;就行了</p>
 <p>思路很簡單，不過如果要 cache 的頁面越來越多的情況下，html 的結構會越長越大，這實在不是個好辦法</p>
-<h3 id="Vue-js-的-keep-alive"><a href="#Vue-js-的-keep-alive" class="headerlink" title="Vue.js 的 keep-alive"></a>Vue.js 的 keep-alive</h3><p><a target="_blank" rel="noopener" href="https://github.com/vuejs/vue/blob/main/src/core/components/keep-alive.ts">源碼在此</a></p>
-<p>之後開始研究了 Vue.js 的 keep-alive 是如何實現的，</p>
-<p>而 keep-alive 是透過<a target="_blank" rel="noopener" href="https://josephjsf2.github.io/data/structure/and/algorithm/2020/05/09/LRU.html">LRU cache</a>策略儲存在 VNode</p>
+<h3 id="Vue-js-的-keep-alive"><a href="#Vue-js-的-keep-alive" class="headerlink" title="Vue.js 的 keep-alive"></a>Vue.js 的 keep-alive</h3><p>之後開始研究了 Vue.js 的 keep-alive 是如何實現的， <a target="_blank" rel="noopener" href="https://github.com/vuejs/vue/blob/main/src/core/components/keep-alive.ts">源碼在此</a></p>
+<p>而 keep-alive 是透過 <a target="_blank" rel="noopener" href="https://josephjsf2.github.io/data/structure/and/algorithm/2020/05/09/LRU.html">LRU cache</a> 策略儲存在 VNode</p>
 <p>但因此就讓我思考了難道 React 沒有如 keep-alive cache 頁面的方法</p>
 <p>目前查到 2 個方法</p>
 <ul>
-<li><p><a target="_blank" rel="noopener" href="https://zh-hant.reactjs.org/blog/2022/06/15/react-labs-what-we-have-been-working-on-june-2022.html#offscreen">React 18 OffScreen</a></p>
+<li><p><a target="_blank" rel="noopener" href="https://zh-hant.reactjs.org/blog/2022/06/15/react-labs-what-we-have-been-working-on-june-2022.html#offscreen">React 18 OffScreen</a> (目前還沒有<a target="_blank" rel="noopener" href="https://zh-hant.reactjs.org/blog/2022/06/15/react-labs-what-we-have-been-working-on-june-2022.html#offscreen">相關的API可使用</a>)</p>
 </li>
 <li><p><a target="_blank" rel="noopener" href="https://juejin.cn/post/7041490849858846728">基于 react-router V6 实现 路由缓存</a></p>
 </li>
@@ -99,7 +97,7 @@
 <ul>
 <li><p>由 Remix 團隊所開源的 <a target="_blank" rel="noopener" href="https://github.com/remix-run/react-router">react-router</a> (應該是目前最多人使用的)</p>
 </li>
-<li><p><a target="_blank" rel="noopener" href="https://reach.tech/router/">reach-router</a> (不過後來跟 react-router 合併了，目前已沒有在維護)</p>
+<li><p><a target="_blank" rel="noopener" href="https://reach.tech/router/">reach-router</a> (在 react-router v6 跟react router合併了，目前已沒有在維護)</p>
 </li>
 <li><p>由 React Query 團隊開源的 <a target="_blank" rel="noopener" href="https://tanstack.com/router/v1">TanStack Router</a> (不過現在還在 beta 中，文檔也還不齊全，不過看得出來他們的野心，想要讓現在主流框架都能使用到)</p>
 </li>

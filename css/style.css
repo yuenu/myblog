@@ -9,7 +9,7 @@ a {
 }
 .body-container {
   margin: 0 auto;
-  max-width: 620px;
+  max-width: 720px;
   display: flex;
   flex-direction: column;
 }
