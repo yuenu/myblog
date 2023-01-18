@@ -81,8 +81,8 @@
 <p>有玩過 Vue 的人就知道這用<a target="_blank" rel="noopener" href="https://vuejs.org/">Vue.js</a>的 keep-alive 很容易就可以實現了，</p>
 <p>然而此專案是用 React class component 寫的，所以選擇不多，有 CJY0208 開源的 <code>React Activation</code> 、 <code>react-router-cache-route</code></p>
 <p>最後選擇用<a target="_blank" rel="noopener" href="https://github.com/CJY0208/react-router-cache-route">react-router-cache-route</a>來實現此功能，因為有支援class component的相關生命週期可以使用以及所需cache的頁面不是很多</p>
-<p>它的原理就是在要 cache 的這個頁面外層加個 div 然後切換此頁面時在此 div 設置 display: none; 切換到 cache 的頁面時再 display: block;就行了</p>
-<p>思路很簡單，不過如果要 cache 的頁面越來越多的情況下，html 的結構會越長越大，這實在不是個好辦法</p>
+<p>它的原理就是在要 cache 的這個頁面外層加個 div 然後切換此頁面時在此 div 設置 display: none; 切換到 cache 的頁面時再移除 display: none;就行了</p>
+<p>思路很簡單，不過如果要 cache 的頁面越來越多的情況下，html 的結構會越長越大(因為沒有unmounted component)，這實在不是個好辦法</p>
 <h3 id="Vue-js-的-keep-alive"><a href="#Vue-js-的-keep-alive" class="headerlink" title="Vue.js 的 keep-alive"></a>Vue.js 的 keep-alive</h3><p>之後開始研究了 Vue.js 的 keep-alive 是如何實現的， <a target="_blank" rel="noopener" href="https://github.com/vuejs/vue/blob/main/src/core/components/keep-alive.ts">源碼在此</a></p>
 <p>而 keep-alive 是透過 <a target="_blank" rel="noopener" href="https://josephjsf2.github.io/data/structure/and/algorithm/2020/05/09/LRU.html">LRU cache</a> 策略儲存在 VNode</p>
 <p>但因此就讓我思考了難道 React 沒有如 keep-alive cache 頁面的方法</p>
