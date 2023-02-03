@@ -145,10 +145,9 @@
 
 <span class="hljs-variable language_">module</span>.<span class="hljs-property">exports</span> = <span class="hljs-title class_">ConsolegPlugin</span></code></pre>
 
-<p>接下來我們使用<a target="_blank" rel="noopener" href="https://github.com/amireh/happypack#readme">HappyPack</a>搭配<a target="_blank" rel="noopener" href="https://webpack.docschina.org/loaders/babel-loader">babel-loader</a>的cache來加速</p>
 <img src="/myblog/2023/01/06/legacy-project-optimization/g3.png" class="" title="g3">
-<p><a target="_blank" rel="noopener" href="https://webpack.docschina.org/loaders/babel-loader#babel-loader-is-slow">我們可以加上cacheDirectory的選項來cache之前編譯過的檔案</a></p>
-<p>不囉唆，上code</p>
+<p><a target="_blank" rel="noopener" href="https://webpack.docschina.org/loaders/babel-loader#babel-loader-is-slow">我們可以加上cacheDirectory的選項來cache之前編譯過的檔案，來避免每次都要全部重新編譯</a></p>
+<p>接下來我們使用<a target="_blank" rel="noopener" href="https://github.com/amireh/happypack#readme">HappyPack</a>搭配<a target="_blank" rel="noopener" href="https://webpack.docschina.org/loaders/babel-loader">babel-loader</a>的cache來加速</p>
 <h3 id="Vue2版本-webpack"><a href="#Vue2版本-webpack" class="headerlink" title="Vue2版本(webpack)"></a>Vue2版本(webpack)</h3><pre><code class="hljs js"><span class="hljs-comment">// vue.config.js</span>
 
 <span class="hljs-comment">// import .. from ..</span>
